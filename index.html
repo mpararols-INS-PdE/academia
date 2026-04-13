@@ -1,0 +1,767 @@
+<!DOCTYPE html>
+<html lang="ca">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Activitat: Ampliació d'un gestor de personatges (Java)</title>
+    <style>
+        :root {
+            --bg-color: #0f172a;
+            --card-bg: #1e293b;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --accent-primary: #3b82f6;
+            --accent-secondary: #10b981;
+            --border-color: #334155;
+            --code-bg: #0b1120;
+        }
+
+        body {
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            background-color: var(--bg-color);
+            background-image: radial-gradient(circle at 20% 0%, rgba(59, 130, 246, 0.12) 0%, transparent 40%), radial-gradient(circle at 80% 100%, rgba(16, 185, 129, 0.08) 0%, transparent 35%);
+            color: var(--text-main);
+            line-height: 1.6;
+            margin: 0;
+            padding: 0;
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+
+        body::-webkit-scrollbar {
+            display: none;
+        }
+
+        header {
+            background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+            padding: 4rem 2rem;
+            text-align: center;
+            border-bottom: 2px solid var(--accent-primary);
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+            color: var(--text-main);
+        }
+
+        h2 {
+            color: var(--accent-primary);
+            margin-top: 2rem;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 0.5rem;
+        }
+
+        h3 {
+            color: var(--accent-secondary);
+        }
+
+        .subtitle {
+            font-size: 1.2rem;
+            color: var(--text-muted);
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 2.25rem 2rem 3rem;
+        }
+
+        .card {
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 8px 20px -8px rgba(2, 6, 23, 0.6);
+            transition: transform 0.2s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-2px);
+            border-color: var(--accent-primary);
+        }
+
+        .intro-card {
+            background: linear-gradient(180deg, #273244 0%, #222d3d 100%);
+            border-color: #475569;
+        }
+
+        .intro-card:hover {
+            border-color: #64748b;
+        }
+
+        .intro-card h2 {
+            color: #cbd5e1;
+        }
+
+        details.card {
+            padding: 0;
+            overflow: hidden;
+            scroll-margin-top: 1.25rem;
+        }
+
+        details.card:hover {
+            transform: none;
+        }
+
+        .phase-summary {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 1rem;
+            padding: 1.5rem 2rem;
+            cursor: pointer;
+            list-style: none;
+        }
+
+        .phase-summary::-webkit-details-marker {
+            display: none;
+        }
+
+        .phase-summary:focus-visible {
+            outline: 2px solid var(--accent-primary);
+            outline-offset: -2px;
+        }
+
+        .phase-heading {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .phase-summary h2 {
+            margin: 0;
+            border-bottom: 0;
+            padding-bottom: 0;
+        }
+
+        .phase-summary::after {
+            content: '▾';
+            color: var(--accent-primary);
+            font-size: 1.5rem;
+            line-height: 1;
+            transition: transform 0.2s ease;
+            flex-shrink: 0;
+        }
+
+        details.is-open .phase-summary::after {
+            transform: rotate(180deg);
+        }
+
+        .phase-content {
+            padding: 0 2rem 2rem;
+        }
+
+        .phase-badge {
+            display: inline-block;
+            background-color: var(--accent-primary);
+            color: white;
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px;
+            font-size: 0.875rem;
+            font-weight: bold;
+        }
+
+        @media (max-width: 640px) {
+            .phase-summary {
+                padding: 1.25rem 1.25rem 1rem;
+                align-items: flex-start;
+            }
+
+            .phase-content {
+                padding: 0 1.25rem 1.25rem;
+            }
+        }
+
+        code {
+            font-family: 'Fira Code', Consolas, monospace;
+            background-color: var(--code-bg);
+            color: #38bdf8;
+            padding: 0.2rem 0.4rem;
+            border-radius: 4px;
+            font-size: 0.9em;
+        }
+
+        pre {
+            background-color: var(--code-bg);
+            padding: 1rem;
+            border-radius: 8px;
+            overflow-x: auto;
+            border: 1px solid var(--border-color);
+        }
+
+        pre code {
+            background-color: transparent;
+            padding: 0;
+            color: #e2e8f0;
+        }
+
+        .objectives-grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 1.25rem;
+            margin-top: 1.5rem;
+        }
+
+        .objective-card {
+            background: linear-gradient(180deg, rgba(15, 23, 42, 0.9) 0%, rgba(15, 23, 42, 0.55) 100%);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 1.4rem;
+        }
+
+        .objective-card h3 {
+            margin-top: 0;
+            margin-bottom: 0.75rem;
+            color: var(--text-main);
+        }
+
+        .objective-card p {
+            margin: 0;
+            color: var(--text-muted);
+        }
+
+        .objective-card code {
+            font-size: 0.85em;
+        }
+
+        @media (max-width: 760px) {
+            .objectives-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .bonus-card {
+            border-color: #f59e0b;
+            background: linear-gradient(180deg, var(--card-bg) 0%, rgba(245, 158, 11, 0.05) 100%);
+        }
+
+        .bonus-card h2 {
+            color: #f59e0b;
+        }
+
+        .phase-intro {
+            color: var(--text-muted);
+            margin-top: 0;
+        }
+
+        .bonus-card .phase-summary::after {
+            color: #f59e0b;
+        }
+
+        .bonus-card .phase-summary:focus-visible {
+            outline-color: #f59e0b;
+        }
+
+        .bonus-card .phase-badge {
+            background-color: #f59e0b;
+            color: #0f172a;
+        }
+
+        .bonus-box {
+            background-color: rgba(15, 23, 42, 0.75);
+            border: 1px solid rgba(245, 158, 11, 0.25);
+            border-radius: 10px;
+            padding: 1rem 1.25rem;
+            margin-top: 1.5rem;
+        }
+
+        .bonus-box h3 {
+            margin-top: 0;
+        }
+
+        .optional-hint {
+            margin-top: 1.5rem;
+            background: rgba(148, 163, 184, 0.12);
+            border: 1px solid rgba(148, 163, 184, 0.35);
+            border-radius: 10px;
+            padding: 0.9rem 1rem;
+        }
+
+        .optional-hint p {
+            margin: 0;
+            color: #cbd5e1;
+        }
+
+        .uml-card {
+            overflow: hidden;
+            border-color: #a78bfa;
+            background: linear-gradient(180deg, var(--card-bg) 0%, rgba(167, 139, 250, 0.08) 100%);
+        }
+
+        .uml-card .phase-summary::after {
+            color: #a78bfa;
+        }
+
+        .uml-card .phase-summary:focus-visible {
+            outline-color: #a78bfa;
+        }
+
+        .uml-card .phase-badge {
+            background-color: #a78bfa;
+            color: #0f172a;
+        }
+
+        .uml-card .phase-summary h2 {
+            color: #c4b5fd;
+        }
+
+        .uml-intro {
+            color: var(--text-muted);
+            margin-bottom: 1.5rem;
+        }
+
+        .mermaid-wrapper {
+            background: rgba(11, 17, 32, 0.7);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 1rem;
+            overflow-x: auto;
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+
+        .mermaid-wrapper::-webkit-scrollbar {
+            display: none;
+        }
+
+        .mermaid {
+            min-width: 720px;
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>Ampliació del projecte de personatges</h1>
+        <p class="subtitle">Activitat pràctica guiada per ampliar el projecte anterior incorporant una Academia com a repositori de personatges</p>
+    </header>
+
+    <div class="container">
+
+        <section class="card intro-card">
+            <h2>Contextualització</h2>
+            <p>En aquesta activitat partireu del <strong>projecte anterior</strong>, on ja teniu implementats els personatges, les subclasses principals i la lògica bàsica de treball amb aquest domini. La novetat serà afegir una nova peça al sistema: una classe <strong>Academia</strong>.</p>
+            <p>La <strong>Academia</strong> actuarà com un <strong>repositori de Personatge</strong>: hi podreu desar tots els aventurers disponibles, consultar-los, filtrar-los, ordenar-los i preparar a partir d’aquí el vostre <strong>Equip</strong>. D’aquesta manera, l’Equip continua tenint sentit dins del projecte, però ara passa a dependre d’una estructura superior que centralitza la gestió dels personatges.</p>
+            <p>La vostra feina serà <strong>entendre el codi existent</strong> i <strong>ampliar-lo</strong> amb aquesta nova capa de funcionalitat. Això us permetrà practicar lectura de codi, manteniment, ampliació de projectes reals i treball amb col·leccions sense haver de reconstruir tota l’arquitectura des de zero.</p>
+        </section>
+
+        <section class="card intro-card">
+            <h2>Objectius d’aprenentatge</h2>
+            <p class="phase-intro">Els objectius estan agrupats per competències perquè es vegi més clar què practicareu al llarg de l’activitat.</p>
+            <div class="objectives-grid">
+                <article class="objective-card">
+                    <h3>Lectura de codi existent</h3>
+                    <p>Identificar quines classes hi ha, quines responsabilitats tenen i com es relacionen dins del projecte base.</p>
+                </article>
+                <article class="objective-card">
+                    <h3>Ampliació de funcionalitats</h3>
+                    <p>Implementar una nova classe <code>Academia</code> i nous mètodes a partir d’uns requisits concrets sense trencar el comportament ja existent.</p>
+                </article>
+                <article class="objective-card">
+                    <h3>Treball amb col·leccions</h3>
+                    <p>Recórrer, filtrar, cercar i ordenar estructures com <code>ArrayList&lt;Personatge&gt;</code> per resoldre problemes reals.</p>
+                </article>
+                <article class="objective-card">
+                    <h3>Disseny orientat a objectes</h3>
+                    <p>Consolidar encapsulació, herència, interfícies i separació de responsabilitats en una aplicació ja estructurada.</p>
+                </article>
+            </div>
+        </section>
+
+        <details class="card" data-accordion-group="phases" open>
+            <summary class="phase-summary">
+                <div class="phase-heading">
+                    <span class="phase-badge">FASE 1</span>
+                    <h2>Anàlisi del projecte base</h2>
+                </div>
+            </summary>
+            <div class="phase-content">
+                <p class="phase-intro">Abans d’afegir funcionalitats, cal entendre bé què us proporciona ja el projecte anterior i què hi falta encara.</p>
+                <p>El projecte inclou classes com <strong>Personatge</strong>, les seves subclasses i la lògica necessària per treballar amb equips. Ara heu de dissenyar i implementar una nova classe anomenada <strong>Academia</strong>, que actuarà com a repositori general de personatges.</p>
+                <ul>
+                    <li><strong>Ja implementat:</strong> models principals, subclasses i projecte base anterior.</li>
+                    <li><strong>Pendent d’implementar:</strong> la classe <code>Academia</code> i les funcionalitats de repositori sobre la col·lecció de personatges.</li>
+                </ul>
+                <h3>Tasques d’anàlisi</h3>
+                <ol>
+                    <li>Quines classes formen part del projecte i quina funció té cadascuna?</li>
+                    <li>Quina diferència hi ha entre un <code>Equip</code> i una <code>Academia</code> dins del sistema?</li>
+                    <li>Quines funcionalitats ja estan resoltes al projecte anterior i quines encara no?</li>
+                    <li>Per què té sentit que l’<code>Academia</code> sigui el repositori de tots els personatges disponibles?</li>
+                </ol>
+            </div>
+        </details>
+
+        <details class="card" data-accordion-group="phases">
+            <summary class="phase-summary">
+                <div class="phase-heading">
+                    <span class="phase-badge">FASE 2</span>
+                    <h2>Disseny i implementació de l'Academia</h2>
+                </div>
+            </summary>
+            <div class="phase-content">
+                <p class="phase-intro">En aquesta fase heu d’incorporar la nova peça principal de l’activitat: la classe <code>Academia</code>.</p>
+                <p>L’<code>Academia</code> representarà el repositori general de personatges disponibles per preparar equips o fer consultes globals sobre tots els aventurers registrats.</p>
+                <ul>
+                    <li><strong>Atributs suggerits:</strong> <code>nom</code> i <code>ArrayList&lt;Personatge&gt; personatges</code>.</li>
+                    <li><strong>Mètodes mínims:</strong> constructor, <code>afegirPersonatge(...)</code> i <code>mostrarPersonatges()</code>.</li>
+                    <li><strong>Objectiu:</strong> disposar d’una estructura central sobre la qual implementareu la resta de funcionalitats.</li>
+                </ul>
+            </div>
+        </details>
+
+        <details class="card" data-accordion-group="phases">
+            <summary class="phase-summary">
+                <div class="phase-heading">
+                    <span class="phase-badge">FASE 3 i 4</span>
+                    <h2>Cerques i filtres</h2>
+                </div>
+            </summary>
+            <div class="phase-content">
+                <p class="phase-intro">Ara començareu a ampliar l’<code>Academia</code> amb funcionalitats útils sobre la col·lecció de personatges.</p>
+
+                <h3>Fase 3: Cerques</h3>
+                <p>Implementeu mètodes que permetin localitzar personatges dins del sistema.</p>
+                <ul>
+                    <li><strong>Propostes:</strong> <code>buscarPerNom(String nom)</code>, <code>existeixPersonatge(String nom)</code></li>
+                    <li><strong>Objectiu:</strong> retornar un personatge concret o indicar si el sistema el conté.</li>
+                </ul>
+
+                <h3>Fase 4: Filtres</h3>
+                <p>Implementeu mètodes que retornin subconjunts de la col·lecció segons una condició.</p>
+                <ul>
+                    <li><strong>Propostes:</strong> <code>obtenirPersonatgesVius()</code>, <code>filtrarPerNivellMinim(int nivell)</code>, <code>filtrarPerTipus(String tipus)</code></li>
+                    <li><strong>Objectiu:</strong> practicar recorreguts, condicions i creació de noves llistes.</li>
+                </ul>
+
+                <div class="optional-hint">
+                    <p><strong>Ampliació opcional:</strong> si voleu pujar una mica el nivell, podeu fer que algunes cerques no diferenciïn entre majúscules i minúscules.</p>
+                </div>
+            </div>
+        </details>
+
+        <details class="card" data-accordion-group="phases">
+            <summary class="phase-summary">
+                <div class="phase-heading">
+                    <span class="phase-badge">FASE 5</span>
+                    <h2>Estadístiques del sistema</h2>
+                </div>
+            </summary>
+            <div class="phase-content">
+                <p class="phase-intro">Aquesta fase se centra a obtenir informació global a partir del conjunt de personatges disponibles a l’<code>Academia</code>.</p>
+                <ul>
+                    <li><strong>Propostes:</strong> <code>calcularVidaMitjana()</code>, <code>obtenirPersonatgeMesNivell()</code>, <code>comptarPerTipus()</code></li>
+                    <li><strong>Objectiu:</strong> acumular valors, comparar elements i resumir la informació de la col·lecció.</li>
+                </ul>
+            </div>
+        </details>
+
+        <details class="card" data-accordion-group="phases">
+            <summary class="phase-summary">
+                <div class="phase-heading">
+                    <span class="phase-badge">FASE 6</span>
+                    <h2>Ordenació de personatges</h2>
+                </div>
+            </summary>
+            <div class="phase-content">
+                <p class="phase-intro">Ara fareu que l’<code>Academia</code> pugui mostrar els personatges en diferents ordres segons el criteri que interessi.</p>
+                <ul>
+                    <li><strong>Propostes:</strong> ordenar per <code>nom</code>, per <code>nivell</code> o per <code>vida</code>.</li>
+                    <li><strong>Consell:</strong> si voleu flexibilitat, podeu utilitzar <code>Comparator</code> per definir criteris d’ordenació diferents.</li>
+                    <li><strong>Exemple:</strong> <code>personatges.sort(Comparator.comparing(Personatge::getNom));</code></li>
+                </ul>
+            </div>
+        </details>
+
+        <details class="card" data-accordion-group="phases">
+            <summary class="phase-summary">
+                <div class="phase-heading">
+                    <span class="phase-badge">FASE 7</span>
+                    <h2>Funcionalitats extra sobre els personatges</h2>
+                </div>
+            </summary>
+            <div class="phase-content">
+                <p class="phase-intro">Un cop funcionin les operacions de consulta, podeu incorporar accions que modifiquin l’estat del sistema dins de l’<code>Academia</code>.</p>
+                <p>Implementeu una o més funcionalitats d’aquest tipus:</p>
+                <ol>
+                    <li><code>entrenarPersonatge(String nom)</code> per augmentar-li el nivell.</li>
+                    <li><code>curarTotsElsPersonatges(int quantitat)</code> per recuperar punts de vida.</li>
+                    <li><code>eliminarPersonatge(String nom)</code> per treure’l del repositori.</li>
+                </ol>
+                <h3>Exemple de sortida esperada</h3>
+<pre><code>Personatge trobat: Lira (Arquer) - nivell 6
+Personatges vius: 5
+Vida mitjana del grup: 84.2
+
+S'ha entrenat Thorin. Nou nivell: 8
+Llistat de l'Academia ordenat per nivell:
+Merlina - 9
+Thorin - 8
+Lira - 6</code></pre>
+            </div>
+        </details>
+
+        <details class="card" data-accordion-group="phases">
+            <summary class="phase-summary">
+                <div class="phase-heading">
+                    <span class="phase-badge">FASE 8</span>
+                    <h2>Programa principal i comprovacions</h2>
+                </div>
+            </summary>
+            <div class="phase-content">
+                <p class="phase-intro">En aquesta fase heu de demostrar que les funcionalitats noves funcionen correctament amb dades de prova.</p>
+                <ol>
+                    <li>Carregueu diversos personatges de tipus diferents.</li>
+                    <li>Executeu almenys una cerca i un filtre.</li>
+                    <li>Mostreu una estadística general de l’<code>Academia</code>.</li>
+                    <li>Proveu una ordenació.</li>
+                    <li>Si voleu, creeu un <code>Equip</code> a partir de personatges seleccionats de l’<code>Academia</code>.</li>
+                </ol>
+            </div>
+        </details>
+
+        <details class="card" data-accordion-group="phases">
+            <summary class="phase-summary">
+                <div class="phase-heading">
+                    <span class="phase-badge">FASE 9</span>
+                    <h2>Preguntes de reflexió</h2>
+                </div>
+            </summary>
+            <div class="phase-content">
+                <p class="phase-intro">Quan el programa funcioni, respon aquestes preguntes per justificar les decisions de disseny que has pres.</p>
+                <ol>
+                    <li>Quin avantatge té rebre un projecte base ja implementat en lloc de començar-lo completament des de zero?</li>
+                    <li>Per què les operacions de cerca, filtre i ordenació tenen sentit dins la classe <code>Academia</code>?</li>
+                    <li>Quina relació hi ha entre l’<code>Academia</code> i l’<code>Equip</code> dins d’aquest nou plantejament?</li>
+                    <li>Quines parts del projecte anterior s’han pogut reutilitzar sense modificar-les?</li>
+                </ol>
+            </div>
+        </details>
+
+        <details class="card" data-accordion-group="resources">
+            <summary class="phase-summary">
+                <div class="phase-heading">
+                    <span class="phase-badge">TEORIA</span>
+                    <h2>Teoria i tips útils</h2>
+                </div>
+            </summary>
+            <div class="phase-content">
+                <p class="phase-intro">Aquest bloc us pot servir de suport quan arribeu a la part d’ordenació o quan vulgueu entendre millor algunes decisions de disseny.</p>
+
+                <h3>Què és una interfície?</h3>
+                <p>Una <strong>interfície</strong> en Java és un contracte: defineix mètodes que una classe es compromet a implementar. No serveix per guardar estat com una classe normal, sinó per indicar <em>quin comportament ofereix</em>.</p>
+
+<pre><code>public interface OrdenablePerNivell {
+    void ordenarPerNivell();
+}</code></pre>
+
+                <p>Quan una classe implementa una interfície, ho indiquem amb la paraula clau <code>implements</code>.</p>
+
+<pre><code>public class Academia implements OrdenablePerNivell {
+    @Override
+    public void ordenarPerNivell() {
+        // implementacio del metode
+    }
+}</code></pre>
+
+                <h3><code>Comparable</code> i <code>Comparator</code></h3>
+                <p><code>Comparable</code> s’utilitza quan una classe té un <strong>ordre natural</strong>. Per exemple, si decidim que els personatges s’han d’ordenar per nom de manera predeterminada.</p>
+
+<pre><code>public class Personatge implements Comparable&lt;Personatge&gt; {
+    @Override
+    public int compareTo(Personatge altre) {
+        return this.getNom().compareTo(altre.getNom());
+    }
+}</code></pre>
+
+                <p><code>Comparator</code>, en canvi, s’utilitza quan volem <strong>diferents criteris d’ordenació</strong> sense modificar la classe. És especialment útil en aquesta activitat, perquè l’<code>Academia</code> pot necessitar ordenar per nom, per nivell o per vida segons el cas.</p>
+
+<pre><code>personatges.sort(Comparator.comparing(Personatge::getNom));
+
+personatges.sort(
+    Comparator.comparingInt(Personatge::getNivell).reversed()
+);</code></pre>
+
+                <p>Idea clau: si només voleu un criteri fix, <code>Comparable</code> pot tenir sentit. Si voleu flexibilitat i diversos criteris, normalment us interessarà més <code>Comparator</code>.</p>
+            </div>
+        </details>
+
+        <details class="card bonus-card" data-accordion-group="extensions">
+            <summary class="phase-summary">
+                <div class="phase-heading">
+                    <span class="phase-badge">EXTRA</span>
+                    <h2>Reptes i ampliacions</h2>
+                </div>
+            </summary>
+            <div class="phase-content">
+                <p class="phase-intro">Si voleu anar més enllà, aquí teniu extensions per fer l’<code>Academia</code> més completa i més propera a un projecte real.</p>
+                <ul>
+                    <li><strong>Evitar duplicats:</strong> impedeix afegir dos personatges amb el mateix nom.</li>
+                    <li><strong>Nova subclasse:</strong> incorpora un <code>Sanador</code> o una <code>Exploradora</code> i comprova si el sistema l’accepta sense grans canvis.</li>
+                    <li><strong>Resums per tipus:</strong> genera estadístiques separades per Guerrers, Mags i Arquers.</li>
+                    <li><strong>Exportació textual:</strong> crea un mètode que generi un resum complet del grup en format text.</li>
+                    <li><strong>Menú interactiu:</strong> permet provar les funcionalitats amb un petit menú per consola.</li>
+                    <li><strong>Comparadors:</strong> implementa diferents criteris d’ordenació reutilitzables amb <code>Comparator</code>.</li>
+                    <li><strong>Cerca parcial:</strong> retorna personatges que continguin una part del nom.</li>
+                    <li><strong>Validacions:</strong> controla casos com noms buits, nivells negatius o personatges inexistents.</li>
+                </ul>
+
+                <div class="bonus-box">
+                    <h3>Pistes per a les ampliacions</h3>
+                    <ul>
+                        <li>Per evitar duplicats, us pot anar bé reutilitzar el mètode de cerca abans d’afegir un nou element.</li>
+                        <li>Per a la nova subclasse, reviseu quines parts depenen realment del tipus concret i quines treballen amb <code>Personatge</code>.</li>
+                        <li>Per a les estadístiques, penseu si és millor retornar valors simples o construir un petit resum formatat.</li>
+                        <li>Per al menú interactiu, utilitzeu <code>Scanner</code> i separeu la lògica del menú de la lògica del model.</li>
+                        <li>Per a les ordenacions, penseu si us convé més <code>Comparable</code> o <code>Comparator</code> segons si voleu un únic ordre o diversos criteris.</li>
+                        <li>Per a les validacions, decidiu si preferiu ignorar l’operació o mostrar un missatge d’error clar per consola.</li>
+                        <li>Si voleu escalar el projecte, podeu crear una nova classe de suport com <code>ServeiAcademia</code>.</li>
+                    </ul>
+                </div>
+            </div>
+        </details>
+
+        <details class="card uml-card" data-accordion-group="resources">
+            <summary class="phase-summary">
+                <div class="phase-heading">
+                    <span class="phase-badge">UML</span>
+                    <h2>Diagrama UML del projecte base</h2>
+                </div>
+            </summary>
+            <div class="phase-content">
+                <p class="uml-intro">A sota tens una representació simplificada del plantejament final: reutilitzeu el projecte anterior i hi afegiu una <code>Academia</code> com a repositori general de personatges per preparar equips.</p>
+                <div class="mermaid-wrapper">
+                    <pre class="mermaid">
+classDiagram
+    class Personatge {
+        - String nom
+        - int vida
+        - int nivell
+        + boolean estaViu()
+        + void mostrarInformacio()
+    }
+    class Guerrer {
+        - int forca
+    }
+    class Mag {
+        - int mana
+    }
+    class Arquer {
+        - int precisio
+    }
+    class Academia {
+        - String nom
+        - ArrayList~Personatge~ personatges
+        + void afegirPersonatge(Personatge)
+        + void mostrarPersonatges()
+        + Personatge buscarPerNom(String)
+        + ArrayList~Personatge~ filtrarPerTipus(String)
+        + double calcularVidaMitjana()
+        + void ordenarPerNivell()
+    }
+    class Equip {
+        - String nomEquip
+        - ArrayList~Personatge~ membres
+        + void afegirPersonatge(Personatge)
+    }
+    class Principal {
+        + main(String[] args)
+    }
+
+    Personatge <|-- Guerrer
+    Personatge <|-- Mag
+    Personatge <|-- Arquer
+    Academia "1" *-- "*" Personatge : repositori
+    Equip "1" *-- "*" Personatge : membres
+    Principal --> Academia : utilitza
+    Equip --> Academia : selecciona des de
+                    </pre>
+                </div>
+                <p class="uml-legend">Tip: el diagrama us pot ajudar a decidir on té sentit afegir cada funcionalitat nova.</p>
+            </div>
+        </details>
+
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script>
+    <script>
+        const phaseAccordions = document.querySelectorAll('details[data-accordion-group]');
+
+        function animateClose(accordion) {
+            return new Promise(resolve => {
+                const content = accordion.querySelector('.phase-content');
+                if (!accordion.open) { resolve(); return; }
+
+                accordion.classList.remove('is-open');
+                content.style.overflow = 'hidden';
+                content.style.height = content.scrollHeight + 'px';
+                content.offsetHeight;
+                content.style.transition = 'height 0.3s ease';
+                content.style.height = '0';
+
+                content.addEventListener('transitionend', () => {
+                    accordion.open = false;
+                    content.style.height = '';
+                    content.style.overflow = '';
+                    content.style.transition = '';
+                    resolve();
+                }, { once: true });
+            });
+        }
+
+        function animateOpen(accordion) {
+            accordion.open = true;
+            accordion.classList.add('is-open');
+
+            const content = accordion.querySelector('.phase-content');
+            const targetHeight = content.scrollHeight;
+            content.style.overflow = 'hidden';
+            content.style.height = '0';
+            content.offsetHeight;
+            content.style.transition = 'height 0.3s ease';
+            content.style.height = targetHeight + 'px';
+
+            content.addEventListener('transitionend', () => {
+                content.style.height = '';
+                content.style.overflow = '';
+                content.style.transition = '';
+            }, { once: true });
+        }
+
+        phaseAccordions.forEach(accordion => {
+            if (accordion.open) accordion.classList.add('is-open');
+
+            accordion.querySelector('.phase-summary').addEventListener('click', e => {
+                e.preventDefault();
+
+                if (accordion.open) {
+                    animateClose(accordion);
+                    return;
+                }
+
+                const group = accordion.dataset.accordionGroup;
+                const toClose = [...phaseAccordions].filter(
+                    a => a !== accordion && a.dataset.accordionGroup === group && a.open
+                );
+
+                Promise.all(toClose.map(animateClose)).then(() => {
+                    accordion.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    animateOpen(accordion);
+                });
+            });
+        });
+
+        if (window.mermaid) {
+            window.mermaid.initialize({
+                startOnLoad: true,
+                theme: 'dark',
+                securityLevel: 'loose'
+            });
+        }
+    </script>
+</body>
+</html>
